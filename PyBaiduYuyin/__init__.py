@@ -9,7 +9,7 @@ __license__ = "BSD"
 
 import io, os, subprocess, wave
 import math, audioop, collections
-import json
+import json, socket
 
 try: # try to use python2 module
     from urllib import urlencode
@@ -432,13 +432,16 @@ class Recognizer(AudioSource):
 
         # check for invalid key response from the server
         try:
-            response = urlopen(self.request)
+            response = urlopen(self.request, timeout = 60)  # Set timeout to avoid any non-response issues due to poor networking
+            response_text = response.read().decode("utf-8")
         except URLError:
             raise IndexError("No internet connection available to transfer audio data")
+        except socket.timeout:
+            raise TimeoutError("Time out")
         except:
             raise KeyError("Server wouldn't respond (invalid key or quota has been maxed out)")
 
-        response_text = response.read().decode("utf-8")
+        
         json_result = json.loads(response_text)
         if int(json_result['err_no']) != 0:
             raise LookupError(json_result['err_msg'])
