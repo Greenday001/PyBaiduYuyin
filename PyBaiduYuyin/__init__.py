@@ -10,6 +10,7 @@ __license__ = "BSD"
 import io, os, subprocess, wave
 import math, audioop, collections
 import json, socket
+socket.setdefaulttimeout(60)  #Global default timeout for socket
 
 try: # try to use python2 module
     from urllib import urlencode
